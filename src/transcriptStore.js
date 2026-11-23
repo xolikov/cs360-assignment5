@@ -16,8 +16,9 @@ export class TranscriptStore {
 
   getStudentIDs(name) {
     const matches = [];
+    const normalizedTarget = name === undefined ? undefined : String(name).trim().toLowerCase();
     for (const student of this.#students.values()) {
-      if (name === undefined || student.studentName === String(name)) {
+      if (normalizedTarget === undefined || student.studentName.trim().toLowerCase() === normalizedTarget) {
         matches.push(student.studentID);
       }
     }
