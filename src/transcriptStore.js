@@ -37,6 +37,7 @@ export class TranscriptStore {
     if (!this.#students.delete(parsedID)) {
       throw new Error(`Student not found: ${parsedID}`);
     }
+    this.#grades.delete(parsedID);
   }
 
   addGrade(studentID, course, grade) {
@@ -79,7 +80,7 @@ export class TranscriptStore {
   }
 
   getGrade(studentID, course) {
-    const parsedID = this.#parseStudentID(studentID);
+    const parsedID = this.#requireStudent(studentID).studentID;
     const normalizedCourse = String(course ?? "").trim().toUpperCase();
     return this.#grades.get(parsedID)?.get(normalizedCourse);
   }
