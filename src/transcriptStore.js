@@ -43,14 +43,7 @@ export class TranscriptStore {
 
   addGrade(studentID, course, grade) {
     const parsedID = this.#requireStudent(studentID).studentID;
-    const normalizedCourse = String(course ?? "").trim().toUpperCase();
-    if (!normalizedCourse) {
-      throw new Error("Course name is required");
-    }
-    const numericGrade = Number(grade);
-    if (!Number.isInteger(numericGrade) || numericGrade < 0 || numericGrade > 100) {
-      throw new Error("Grade must be an integer from 0 to 100");
-    }
+    const { normalizedCourse, numericGrade } = this.#validateCourseAndGrade(course, grade);
 
     const studentGrades = this.#grades.get(parsedID) ?? new Map();
     if (studentGrades.has(normalizedCourse)) {
@@ -63,14 +56,7 @@ export class TranscriptStore {
 
   changeGrade(studentID, course, grade) {
     const parsedID = this.#requireStudent(studentID).studentID;
-    const normalizedCourse = String(course ?? "").trim().toUpperCase();
-    if (!normalizedCourse) {
-      throw new Error("Course name is required");
-    }
-    const numericGrade = Number(grade);
-    if (!Number.isInteger(numericGrade) || numericGrade < 0 || numericGrade > 100) {
-      throw new Error("Grade must be an integer from 0 to 100");
-    }
+    const { normalizedCourse, numericGrade } = this.#validateCourseAndGrade(course, grade);
 
     const studentGrades = this.#grades.get(parsedID);
     if (!studentGrades?.has(normalizedCourse)) {
@@ -91,6 +77,18 @@ export class TranscriptStore {
     return [...(this.#grades.get(parsedID)?.entries() ?? [])].map(
       ([course, grade]) => ({ studentID: parsedID, course, grade }),
     );
+  }
+
+  #validateCourseAndGrade(course, grade) {
+    const normalizedCourse = String(course ?? "").trim().toUpperCase();
+    if (!normalizedCourse) {
+      throw new Error("Course name is required");
+    }
+    const numericGrade = Number(grade);
+    if (!Number.isInteger(numericGrade) || numericGrade < 0 || numericGrade > 100) {
+      throw new Error("Grade must be an integer from 0 to 100");
+    }
+    return { normalizedCourse, numericGrade };
   }
 
   #parseStudentID(studentID) {
