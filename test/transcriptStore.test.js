@@ -55,6 +55,30 @@ describe("TranscriptStore", () => {
     assert.throws(() => store.deleteStudent(secondID), /Student not found/);
   });
 
+  test("BUG-101: deleting a student removes grades and throws on grade lookup", () => {
+    const studentID = store.addStudent("Grace");
+    store.addGrade(studentID, "CS360", 95);
+
+    assert.equal(store.getGrade(studentID, "CS360"), 95);
+    store.deleteStudent(studentID);
+
+    assert.throws(() => store.getGrade(studentID, "CS360"), /Student not found/);
+  });
+
+  test("BUG-102: duplicate grade throws error and changeGrade is used for update", () => {
+    const studentID = store.addStudent("Lin");
+    store.addGrade(studentID, "CS360", 85);
+
+    assert.throws(
+      () => store.addGrade(studentID, "CS360", 90),
+      /Grade already exists for course CS360/,
+    );
+    assert.equal(store.getGrade(studentID, "CS360"), 85);
+
+    store.changeGrade(studentID, "CS360", 90);
+    assert.equal(store.getGrade(studentID, "CS360"), 90);
+  });
+
   test("BUG-103: name search trims whitespace and ignores case, while display name is unchanged", () => {
     const studentID = store.addStudent("Ada Lovelace");
 
